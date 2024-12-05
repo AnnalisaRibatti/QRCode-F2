@@ -35,8 +35,11 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
       this.scannedData = {
         user: decodedText,
         date: new Date().getTime()
-    }; // Salva il dato decodificato
-      
+      }; // Salva il dato decodificato
+        
+      // Aggiungi l'utente solo se non esiste già
+      this.userIsAdded = this.addUserIfNotExists(this.listScannedData, this.scannedData);
+
       /*    // chiude la fotocamera dopo l'uso
         this.html5Qrcode?.stop().catch(err => {
         console.error("Error stopping the QR code scanner", err);
@@ -61,7 +64,6 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
 
     console.log('addUserIfNotExists')
 
-    this.userIsAdded = this.addUserIfNotExists(this.listScannedData, this.scannedData!);
     
     // veridico a db se utente ha già badge-ato
     //....
@@ -72,19 +74,19 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
   };
 
   addUserIfNotExists(scans: Scan[], newScan: Scan): boolean {
-    const userExists = scans.some(scan => newScan.user === newScan.user);
-    console.log('addUserIfNotExists', userExists)
-    /* if (userExists) {
-        return false;
+    // Controlla se l'utente esiste già nella lista degli scan
+    const userExists = scans.some(scan => scan.user === newScan.user);
+    console.log('addUserIfNotExists', userExists);
+    
+    if (userExists) {
+        return false; // L'utente esiste già, non aggiungere
     } else {
-      scans.push(newScan);
-      console.log(scans)
-      console.log(this.listScannedData)
-      return true;
-    } */
-      return false;
-}
-
+        scans.push(newScan); // Aggiungi il nuovo scan alla lista
+        console.log(scans);
+        console.log(this.listScannedData);
+        return true; // L'utente è stato aggiunto con successo
+    }
+  };
 
 }
 
