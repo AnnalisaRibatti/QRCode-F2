@@ -1,0 +1,45 @@
+##DATABASE    
+Tipo: MYSQL
+
+Avvio server db: Win+r, services.msc, avviare MSQL80
+
+Avviare db: avviare connessione a db (usare credenziali come da configurazione)
+
+Indirizzo: 127.0.0.1:3306
+
+Creazione:
+CREATE DATABASE QRCode;
+USE QRCode;
+
+-- DROP TABLE scans;
+
+CREATE TABLE scans (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user VARCHAR(255) NOT NULL,
+  date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+Altre utili:
+-- DELETE FROM scans WHERE id between 1 AND 10;
+
+-- USE qrcode; SELECT * FROM scans;
+
+----------------------------------------------------
+##BACK END
+Tipo: Node
+
+Scaricare dipendenze: npm i
+
+Avvio: node server.js
+
+Indirizzo: http://localhost:3000
+
+----------------------------------------------------
+##FRONT END
+Tipo: Angular
+
+Scaricare dipendenze: npm i
+
+Avvio: ng s
+
+Indirizzo: http://localhost:4200/
