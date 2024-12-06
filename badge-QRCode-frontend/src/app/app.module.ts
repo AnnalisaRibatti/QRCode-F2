@@ -4,20 +4,26 @@ import { BrowserModule } from '@angular/platform-browser';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { FormsModule } from '@angular/forms';
-import { QrScannerComponent } from './qr-scanner/qr-scanner.component';
+import { QrScannerComponent } from './components/qr-scanner/qr-scanner.component';
 
 import { DATE_PIPE_DEFAULT_OPTIONS } from "@angular/common";
+import { HttpClientModule } from '@angular/common/http';
+import { GenerateQRCodeComponent } from './components/generate-qrcode/generate-qrcode.component';
+import { ResultsComponent } from './components/results/results.component';
 
 
 @NgModule({
   declarations: [
     AppComponent,
-    QrScannerComponent
+    QrScannerComponent,
+    GenerateQRCodeComponent,
+    ResultsComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
-    FormsModule
+    FormsModule,
+    HttpClientModule
   ],
   providers: [
     {
