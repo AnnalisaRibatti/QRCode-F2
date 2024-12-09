@@ -30,6 +30,8 @@ Tipo: Node
 
 Scaricare dipendenze: npm i
 
+Impostare/selezionare credenziali utente db
+
 Avvio: node server.js
 
 Indirizzo: http://localhost:3000

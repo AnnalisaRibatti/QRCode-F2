@@ -15,7 +15,8 @@ app.use(bodyParser.json());
 const db = mysql.createConnection({
   host: '127.0.0.1',
   user: 'root', // Cambia con il tuo utente MySQL
-  password: 'password', // Cambia con la tua password MySQL
+  //password: 'password', // Cambia con la tua password MySQL // mia
+  password: 'root', // Cambia con la tua password MySQL // f2
   database: 'QRCode', // Cambia con il nome del tuo database
   port: 3306
 });
