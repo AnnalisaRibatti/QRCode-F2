@@ -75,7 +75,15 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
               this.isScanningEnabled = false; // Disabilita la scansione
 
               // chiamo altro endpoint timbrature
-              
+              this.timbraturaService.addStamping(response).subscribe({ // Chiamata al backend
+                next: (response) => {
+                  console.log('response', response);
+                },
+                error: (err) => {
+                  console.error("Error adding scan", err);
+                }
+              })
+
               setTimeout(() => {
                 this.isScanningEnabled = true; // Riabilita la scansione dopo 10 secondi
               }, 10000); // 10 secondi

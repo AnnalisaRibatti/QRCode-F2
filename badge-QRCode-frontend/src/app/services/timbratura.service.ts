@@ -20,6 +20,10 @@ export class TimbraturaService {
     // è possibile specificare opzioni aggiuntive come intestazioni (headers) nel secondo argomento del metodo post
   }
 
+  addStamping(user: any): Observable<any> {
+    return this.http.post(this.apiUrl + 'scan', user); // 
+  }
+
   getScans(): Observable<Scan[]> {
     return this.http.get<Scan[]>(this.apiUrl + 'scans');
   }
