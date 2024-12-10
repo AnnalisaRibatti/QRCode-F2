@@ -29,7 +29,32 @@ db.connect(err => {
 
 // Endpoint per aggiungere un utente
 app.post('/api/scan', (req, res) => {
-  const { user, date } = req.body;
+  switch (req.body) {
+    case 'm.rossi@f2.it1733845554':
+      return res.status(200).json(
+        {
+          email: "m.rossi@f2.it",
+          nome_cognome: "Mario Rossi",	
+          id_timbratura: "",
+          Ultima_timbratura: ""
+        },
+      );
+/*     case 'a.bianchi@f2.it1733845586':
+      return res.status(200).json(
+        {
+          email: "a.bianchi@f2.it",
+          nome_cognome: "Alberto Bianchi",	
+          id_timbratura: "JISDHU-SFFS-SFGSSF-SFSF",
+          Ultima_timbratura: "E"
+        },
+      ); */
+/*     default:
+      err = 'utente non riconosciuto'
+      return res.status(500).send(err);
+      break; */
+  }
+
+/*   const { user, date } = req.body;
 
   const checkQuery = 'SELECT * FROM scans WHERE user = ?';
   db.query(checkQuery, [user], (err, results) => {
@@ -40,7 +65,7 @@ app.post('/api/scan', (req, res) => {
     if (results.length > 0) {
       // L'utente esiste già, non fare nulla
       return res.status(200).json({ message: 'Utente già registrato' });
-    }
+    } */
 
     // Aggiungi un nuovo record
 /* 
@@ -54,7 +79,7 @@ app.post('/api/scan', (req, res) => {
       res.status(201).json({ message: 'Utente registrato con successo' });
     });
  */
-    //  se passo la data dal front end
+/*     //  se passo la data dal front end
     const insertQuery = 'INSERT INTO scans (user, date) VALUES (?, ?)';
     const timestamp = new Date(date * 1000).toISOString().slice(0, 19).replace('T', ' '); // Converte Unix timestamp in formato TIMESTAMP
 
@@ -63,8 +88,8 @@ app.post('/api/scan', (req, res) => {
         return res.status(500).send(err);
       }
       res.status(201).json({ message: 'Utente registrato con successo' });
-    });
-  });
+    }); */
+  /* }); */
 });
 
 // Endpoint per ottenere tutti gli utenti registrati

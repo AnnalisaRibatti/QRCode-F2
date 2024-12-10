@@ -17,9 +17,11 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
   public scannedData?: Scan;
   private isScanningEnabled: boolean = true; // Stato per gestire la scansione
 
-  public listScannedData: Scan[] = Array<Scan>();
+  //public listScannedData: Scan[] = Array<Scan>();
 
-  public userIsAdded: boolean = false;
+  //public userIsAdded: boolean = false;
+
+  public nominativo?: string;
 
 
   constructor(
@@ -27,10 +29,11 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
   ) {}
 
   ngOnInit(): void {
-    this.getScans(); // Recupera gli scans all'avvio
+    //this.getScans(); // Recupera gli scans all'avvio
   }
-
+  
   ngAfterViewInit(): void {
+    // attiva la scansione
     this.html5Qrcode = new Html5Qrcode("reader");
     this.startScanning();
   }
@@ -44,26 +47,30 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
   startScanning() {
     if (!this.isScanningEnabled) return; // Controlla se la scansione è abilitata
 
+      this.nominativo = undefined;
+
       this.errorDisplayed = false; // Resetta l'indicatore della visualizzazione dell'errore
 
       const qrCodeSuccessCallback = (decodedText: string, decodedResult: any) => {
         this.scannedData = {
-          user: decodedText,
-          //date: new Date().getTime()
-          date: Math.floor(Date.now() / 1000) // Converte il timestamp in secondi
+          keyQRCode: decodedText,
         }; // Salva il dato decodificato
         console.log(this.scannedData)
 
-        // Rimuovi utenti scansionati obsoleti
+/*         // Rimuovi utenti scansionati obsoleti
         this.removeExpiredScans();
 
         // Aggiungi l'utente solo se non esiste già
         this.userIsAdded = this.addUserIfNotExists(this.listScannedData, this.scannedData);
+ */
 
-        if (this.userIsAdded) {
+        /* if (this.userIsAdded) { */
+          console.log('chiamata al be post')
           this.timbraturaService.addScan(this.scannedData).subscribe({ // Chiamata al backend
             next: (response) => {
-              console.log(response);
+              console.log('response', response);
+
+              this.nominativo = response.nome_cognome;
 
               this.isScanningEnabled = false; // Disabilita la scansione
               setTimeout(() => {
@@ -74,7 +81,7 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
               console.error("Error adding scan", err);
             }
           })
-        };
+        /* }; */
 
   /*    // chiude la fotocamera dopo l'uso
           this.html5Qrcode?.stop().catch(err => {
@@ -90,7 +97,7 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
         }
       };
 
-      const config = { fps: 10, qrbox: 430 }; // 10 fotogrammi al secondo e una dimensione del box di scansione di 250 pixel.
+      const config = { fps: 5, qrbox: 430 }; // 5 fotogrammi al secondo e una dimensione del box di scansione di 250 pixel.
 
       this.html5Qrcode?.start(
         //{ facingMode: "environment" }, // Usa la fotocamera posteriore se disponibile
@@ -105,9 +112,9 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
       console.log('addUserIfNotExists')
   };
 
-  private addUserIfNotExists(scans: Scan[], newScan: Scan): boolean {
+/*   private addUserIfNotExists(scans: Scan[], newScan: Scan): boolean {
     // Controlla se l'utente esiste già nella lista degli scan
-    const userExists = scans.some(scan => scan.user === newScan.user);
+    const userExists = scans.some(scan => scan.keyQRCode === newScan.keyQRCode);
     console.log('addUserIfNotExists', userExists);
 
     if (userExists) {
@@ -116,9 +123,9 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
         scans.push(newScan); // Aggiungi il nuovo scan alla lista
         return true; // L'utente è stato aggiunto con successo
     }
-  };
+  }; */
 
-  private removeExpiredScans() {
+/*   private removeExpiredScans() {
     const currentTime = new Date().getTime();
     const expirationTime = ENVIRONMENT.timeToExpire * 1000; // 60 secondi in millisecondi
 
@@ -127,17 +134,19 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
     });
 
     console.log('Updated listScannedData:', this.listScannedData);
-  };
+  }; */
 
-  private getScans() {
+/*   private getScans() {
+    console.log('getScans')
     this.timbraturaService.getScans().subscribe(scans => {
         this.listScannedData = scans.map(scan => ({
-            user: scan.user,
+            keyQRCode: scan.keyQRCode,
             //date: new Date(scan.date).getTime()
             date: Math.floor(new Date(scan.date).getTime() / 1000) // Converte in secondi
         }));
+        console.log('getScans', this.listScannedData)
     });
-  };
+  }; */
 
 }
 

@@ -14,8 +14,8 @@ export class TimbraturaService {
   constructor(private http: HttpClient) {}
 
   addScan(scan: Scan): Observable<any> {
-    console.log('addScan', scan, { user: scan.user })
-    //return this.http.post(this.apiUrl + 'scan', { user: scan.user }); // se non si passa la data
+    console.log('addScan', scan, { keyQRCode: scan.keyQRCode })
+    //return this.http.post(this.apiUrl + 'scan', { keyQRCode: scan.keyQRCode }); // se non si passa la data
     return this.http.post(this.apiUrl + 'scan', scan); //  se passo la data 
     // è possibile specificare opzioni aggiuntive come intestazioni (headers) nel secondo argomento del metodo post
   }
