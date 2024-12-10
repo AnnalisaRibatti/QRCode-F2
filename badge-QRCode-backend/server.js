@@ -29,7 +29,7 @@ db.connect(err => {
 
 // Endpoint per aggiungere un utente
 app.post('/api/scan', (req, res) => {
-  const { user } = req.body;
+  const { user, date } = req.body;
 
   const checkQuery = 'SELECT * FROM scans WHERE user = ?';
   db.query(checkQuery, [user], (err, results) => {
@@ -43,8 +43,22 @@ app.post('/api/scan', (req, res) => {
     }
 
     // Aggiungi un nuovo record
+/* 
+    // se non si passa la data dal front end
     const insertQuery = 'INSERT INTO scans (user) VALUES (?)';
+
     db.query(insertQuery, [user], (err) => {
+      if (err) {
+        return res.status(500).send(err);
+      }
+      res.status(201).json({ message: 'Utente registrato con successo' });
+    });
+ */
+    //  se passo la data dal front end
+    const insertQuery = 'INSERT INTO scans (user, date) VALUES (?, ?)';
+    const timestamp = new Date(date * 1000).toISOString().slice(0, 19).replace('T', ' '); // Converte Unix timestamp in formato TIMESTAMP
+
+    db.query(insertQuery, [user, timestamp], (err) => {
       if (err) {
         return res.status(500).send(err);
       }

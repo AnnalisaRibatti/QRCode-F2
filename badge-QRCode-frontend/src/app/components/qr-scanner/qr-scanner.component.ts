@@ -52,6 +52,7 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
           //date: new Date().getTime()
           date: Math.floor(Date.now() / 1000) // Converte il timestamp in secondi
         }; // Salva il dato decodificato
+        console.log(this.scannedData)
 
         // Rimuovi utenti scansionati obsoleti
         this.removeExpiredScans();
@@ -60,15 +61,20 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
         this.userIsAdded = this.addUserIfNotExists(this.listScannedData, this.scannedData);
 
         if (this.userIsAdded) {
-          this.timbraturaService.addScan(this.scannedData).subscribe(response => {
+          this.timbraturaService.addScan(this.scannedData).subscribe({ // Chiamata al backend
+            next: (response) => {
               console.log(response);
 
               this.isScanningEnabled = false; // Disabilita la scansione
               setTimeout(() => {
                 this.isScanningEnabled = true; // Riabilita la scansione dopo 10 secondi
               }, 10000); // 10 secondi
-          });
-        }
+            },
+            error: (err) => {
+              console.error("Error adding scan", err);
+            }
+          })
+        };
 
   /*    // chiude la fotocamera dopo l'uso
           this.html5Qrcode?.stop().catch(err => {
