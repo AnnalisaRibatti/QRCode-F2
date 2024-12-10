@@ -29,7 +29,7 @@ db.connect(err => {
 
 // Endpoint per aggiungere un utente
 app.post('/api/scan', (req, res) => {
-  switch (req.body) {
+  switch (req.body.keyQRCode) {
     case 'm.rossi@f2.it1733845554':
       return res.status(200).json(
         {
@@ -39,7 +39,7 @@ app.post('/api/scan', (req, res) => {
           Ultima_timbratura: ""
         },
       );
-/*     case 'a.bianchi@f2.it1733845586':
+    case 'a.bianchi@f2.it1733845586':
       return res.status(200).json(
         {
           email: "a.bianchi@f2.it",
@@ -47,12 +47,11 @@ app.post('/api/scan', (req, res) => {
           id_timbratura: "JISDHU-SFFS-SFGSSF-SFSF",
           Ultima_timbratura: "E"
         },
-      ); */
-/*     default:
+      );
+    default:
       err = 'utente non riconosciuto'
       return res.status(500).send(err);
-      break; */
-  }
+  };
 
 /*   const { user, date } = req.body;
 

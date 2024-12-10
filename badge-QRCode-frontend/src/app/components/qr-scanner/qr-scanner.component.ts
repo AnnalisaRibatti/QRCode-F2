@@ -73,6 +73,9 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
               this.nominativo = response.nome_cognome;
 
               this.isScanningEnabled = false; // Disabilita la scansione
+
+              // chiamo altro endpoint timbrature
+              
               setTimeout(() => {
                 this.isScanningEnabled = true; // Riabilita la scansione dopo 10 secondi
               }, 10000); // 10 secondi
