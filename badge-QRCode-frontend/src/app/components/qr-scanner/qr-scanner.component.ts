@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, AfterViewInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit, ViewEncapsulation } from '@angular/core';
 import { Html5Qrcode } from 'html5-qrcode';
 import { ENVIRONMENT } from '../../../environments/environment';
 
@@ -14,14 +14,20 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
   private html5Qrcode?: Html5Qrcode;
   private errorDisplayed: boolean = false; // Stato per gestire la visualizzazione dell'errore
 
+  public buttonSelected: boolean = false;
+  public actionType: 'entrata' | 'uscita' | null = null; // Variabile per tenere traccia del tipo di timbratura
+  private configScan: any = { fps: ENVIRONMENT.framerPerSecond, qrbox: 430 }; // fotogrammi al secondo e dimensione del box di scansione in pixel.
+
   public scannedData?: Scan;
   private isScanningEnabled: boolean = true; // Stato per gestire la scansione
+  private isScanning: boolean = false;
 
   //public listScannedData: Scan[] = Array<Scan>();
 
   //public userIsAdded: boolean = false;
 
   public nominativo?: string;
+
 
 
   constructor(
@@ -31,24 +37,63 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
   ngOnInit(): void {
     //this.getScans(); // Recupera gli scans all'avvio
   }
-  
+
   ngAfterViewInit(): void {
     // attiva la scansione
     this.html5Qrcode = new Html5Qrcode("reader");
-    this.startScanning();
+    //this.startScanning();
+    //this.startCamera(); // Avvia la fotocamera all'avvio
   }
 
   ngOnDestroy(): void {
-    this.html5Qrcode?.stop().catch(err => {
+/*     this.html5Qrcode?.stop().catch(err => {
       console.error("Error stopping the QR code scanner", err);
+    }); */
+    this.stopScanning();
+  };
+
+  private startCamera(): void {
+    console.log('startCamera')
+    this.html5Qrcode?.start(
+        { facingMode: "user" }, // Usa la fotocamera anteriore
+        this.configScan,
+        (decodedText: string, decodedResult: any) => {
+            // Qui non fare nulla, poiché stai solo mostrando la fotocamera
+        },
+        (errorMessage: string) => {
+            /* console.warn(`QR Code scan error: ${errorMessage}`);
+                    // Controlla se l'errore è già stato visualizzato
+            if (!this.errorDisplayed) {
+              console.warn(`QR Code scan error: ${errorMessage}`);
+              this.errorDisplayed = true; // Imposta l'indicatore che l'errore è già stato visualizzato
+            } */
+        }
+    ).catch(err => {
+        console.error("Error starting the QR code scanner", err);
     });
   };
 
+  setTimbratura(action: 'entrata' | 'uscita') {
+    console.log('setTimbratura')
+
+    this.stopScanning();
+
+    this.actionType = action; // Imposta la variabile in base al pulsante cliccato
+    this.buttonSelected = true;
+    this.startScanning(); // Avviare lo scanner se necessario
+
+    console.log(`Timbratura impostata a: ${this.actionType}`);
+
+    // Qui puoi aggiungere la logica per gestire la timbratura
+    // ad esempio, inviare i dati a un servizio o fare altre operazioni
+  };
+
   startScanning() {
+    console.log('startScanning')
+    this.isScanning = true; // Imposta lo stato di scansione a vero
+
     if (!this.isScanningEnabled) return; // Controlla se la scansione è abilitata
-
       this.nominativo = undefined;
-
       this.errorDisplayed = false; // Resetta l'indicatore della visualizzazione dell'errore
 
       const qrCodeSuccessCallback = (decodedText: string, decodedResult: any) => {
@@ -65,7 +110,7 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
  */
 
         /* if (this.userIsAdded) { */
-          console.log('chiamata al be post')
+          console.log('chiamata al be post addScan')
           this.timbraturaService.addScan(this.scannedData).subscribe({ // Chiamata al backend
             next: (response) => {
               console.log('response', response);
@@ -75,9 +120,23 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
               this.isScanningEnabled = false; // Disabilita la scansione
 
               // chiamo altro endpoint timbrature
+              console.log('chiamata al be post addStamping')
               this.timbraturaService.addStamping(response).subscribe({ // Chiamata al backend
                 next: (response) => {
                   console.log('response', response);
+/*
+{
+  message: "Timbratura effettuata con successo",
+  item:{
+    email: "mario.rossi@example.com",
+    nome_cognome: "Mario Rossi",
+    id_timbratura: "JISDHU-SFFS-SFGSSF-SFSF",
+    ultima_timbratura: "E",
+    data_timbratura: "11/12/2024",
+    ora_timbratura: "15:20:34"
+  }
+}
+*/
                 },
                 error: (err) => {
                   console.error("Error adding scan", err);
@@ -86,7 +145,7 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
 
               setTimeout(() => {
                 this.isScanningEnabled = true; // Riabilita la scansione dopo 10 secondi
-              }, 10000); // 10 secondi
+              }, ENVIRONMENT.msScanningEnabled); // 10 secondi
             },
             error: (err) => {
               console.error("Error adding scan", err);
@@ -108,19 +167,30 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
         }
       };
 
-      const config = { fps: 5, qrbox: 430 }; // 5 fotogrammi al secondo e una dimensione del box di scansione di 250 pixel.
-
-      this.html5Qrcode?.start(
-        //{ facingMode: "environment" }, // Usa la fotocamera posteriore se disponibile
-        { facingMode: "user" }, // Usa la fotocamera anteriore
-        config,
-        qrCodeSuccessCallback,
-        qrCodeErrorCallback
-      ).catch(err => {
-        console.error("Error starting the QR code scanner", err);
-      });
+      // Qui avvii la scansione quando un bottone è selezionato
+      if (this.buttonSelected) {
+        this.html5Qrcode?.start(
+          //{ facingMode: "environment" }, // Usa la fotocamera posteriore se disponibile
+          { facingMode: "user" }, // Usa la fotocamera anteriore
+          this.configScan,
+          qrCodeSuccessCallback,
+          qrCodeErrorCallback
+        ).catch(err => {
+          console.error("Error starting the QR code scanner", err);
+        });
+      }
 
       console.log('addUserIfNotExists')
+  };
+
+  private stopScanning(): void {
+    if (this.isScanning) {
+        this.html5Qrcode?.stop().then(() => {
+            this.isScanning = false; // Imposta lo stato di scansione a falso dopo che è stata fermata
+        }).catch(err => {
+            console.error("Error stopping the QR code scanner", err);
+        });
+    }
   };
 
 /*   private addUserIfNotExists(scans: Scan[], newScan: Scan): boolean {

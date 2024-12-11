@@ -1,8 +1,12 @@
 <div style="text-align:center">
     <h1>Timbratura con QR Code</h1>
 
-    <div style="justify-items: center; margin: 3rem;">
-        <div id="reader" style="width: 600px; height: 400px;"></div> <!-- immagine ripresa dalla telecamera -->
+    <div id="scanQRCode" style="justify-items: center; margin: 3rem;">
+        <div
+        id="reader"
+        [class.disabled]="!buttonSelected"
+        style="width: 600px; height: 400px;"
+        ></div> <!-- immagine ripresa dalla telecamera -->
 
         <div *ngIf="nominativo">
             <h3>Dati scansionati:</h3>
@@ -12,4 +16,12 @@
             <br><p *ngFor="let item of listScannedData"><b>Utente:</b> {{ item.keyQRCode }}, scansionato al momento: {{ null | date : "dd-MM-yyyy HH:mm:ss"}}</p> -->
         </div>
     </div>
+
+    <div id="setTimbratura" class="set-timbratura">
+      <h3>Per avviare la scansione selezionare il tipo di timbratura</h3>
+      <div class="button-container">
+          <button class="timbratura-btn entrata" (click)="setTimbratura('entrata')">Entrata</button>
+          <button class="timbratura-btn uscita" (click)="setTimbratura('uscita')">Uscita</button>
+      </div>
+  </div>
 </div>

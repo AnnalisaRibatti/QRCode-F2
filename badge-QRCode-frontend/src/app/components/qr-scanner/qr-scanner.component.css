@@ -1,0 +1,55 @@
+:host {
+  --blue: #263b64;
+  --azzurro: #00a1d2;
+  --v_acqua: #65c3d2;
+  --ceruleo: #669cd2;
+
+  display: block; /* Assicurati che il contenitore prenda spazio */
+  background-image: url('./../../../assets/images/sfondo_scannerqrcode.jpg');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  height: 100vh; /* Imposta l'altezza al 100% della finestra */
+}
+
+
+
+.set-timbratura {
+  padding: 20px;
+  margin-top: 2rem;
+}
+
+.set-timbratura h3 {
+  color: var(--blue); /* Colore blu per il titolo */
+  margin-bottom: 1rem;
+}
+
+.button-container {
+  display: flex;
+  justify-content: center;
+  gap: 20px; /* Spazio tra i pulsanti */
+}
+
+.timbratura-btn {
+  background-color: var(--blue); /* Blu */
+  color: white;
+  border: none;
+  padding: 15px 30px;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.3s;
+}
+
+.timbratura-btn:hover {
+  background-color: var(--blue); /* Blu scuro al passaggio del mouse */
+  transform: scale(1.05); /* Leggero ingrandimento al passaggio del mouse */
+}
+
+.entrata {
+  background-color: var(--v_acqua); /* Verde per il pulsante Entrata */
+}
+
+.uscita {
+  background-color: var(--ceruleo); /* Rosso per il pulsante Uscita */
+}

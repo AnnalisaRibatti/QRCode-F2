@@ -1,3 +1,5 @@
 export interface Scan {
-  keyQRCode: string;
+  keyQRCode?: string;
+  user?: string;
+  date?: number;
 }
