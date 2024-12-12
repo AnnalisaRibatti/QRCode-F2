@@ -18,29 +18,18 @@ export class TimbraturaService {
     console.log('this.apiUrl + infoQrCode', this.apiUrl + 'infoQrCode')
     return this.http.post(this.apiUrl + 'infoQrCode', scannedData); //  
     // è possibile specificare opzioni aggiuntive come intestazioni (headers) nel secondo argomento del metodo post
-  }
+  };
 
   addStamping(userScan: any): Observable<any> {
 /*
-non più
-    user {
+    {
       email: "a.bianchi@f2.it",
-      nome_cognome: "Alberto Bianchi",
-      id_timbratura: "JISDHU-SFFS-SFGSSF-SFSF",
-      Ultima_timbratura: "E"
+      nome: "Alberto",
+      cognome: "Bianchi",
+      ultima_timbratura: "entrata"
     }
 */
-
-/*     // Divisione della stringa in un array
-    let [nome, cognome] = userScan.nome_cognome.split(" ");
-
-    let userStamp = {
-        nome: nome,
-        cognome: cognome,
-        indirizzo: userScan.email
-    }; */
-
-    return this.http.post(this.apiUrl + 'savetimbroTestQrcode', userScan); //  se passo la data
+    return this.http.post(this.apiUrl + 'savetimbroTestQrcode', userScan);
 /*
 {
   message: "Timbratura effettuata con successo",
@@ -54,10 +43,10 @@ non più
   }
 }
 */
-  }
+  };
 
   //capire se serve
   getScans(): Observable<Scan[]> {
     return this.http.get<Scan[]>(this.apiUrl + 'scans');
-  }
+  };
 }
