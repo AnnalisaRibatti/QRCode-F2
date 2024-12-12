@@ -22,6 +22,7 @@ export class TimbraturaService {
 
   addStamping(userScan: any): Observable<any> {
 /*
+non più
     user {
       email: "a.bianchi@f2.it",
       nome_cognome: "Alberto Bianchi",

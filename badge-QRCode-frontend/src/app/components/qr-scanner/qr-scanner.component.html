@@ -11,10 +11,8 @@
         <div *ngIf="user">
             <h3>Dati scansionati:</h3>
             <p ><b>Ciao</b> {{ user.nome }} {{ user.cognome }}</p>
+            <p>{{ scannedData?.qrcodeToken }}</p>
             <p>{{ oraTimbr }} {{ dataTimbr }}</p>
-            <!-- <p *ngIf="userIsAdded"><b>Badge già registrato</b></p>
-
-            <br><p *ngFor="let item of listScannedData"><b>Utente:</b> {{ item.keyQRCode }}, scansionato al momento: {{ null | date : "dd-MM-yyyy HH:mm:ss"}}</p> -->
         </div>
     </div>
 
