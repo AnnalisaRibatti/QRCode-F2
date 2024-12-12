@@ -9,16 +9,15 @@ import { ENVIRONMENT } from '../../environments/environment';
   providedIn: 'root'
 })
 export class TimbraturaService {
-  private apiUrl = ENVIRONMENT.apiUrl + '/api/';
+  private apiUrl = ENVIRONMENT.apiUrl + '/test/';
 
   constructor(private http: HttpClient) {}
 
   addScan(scan: Scan): Observable<any> {
-    console.log('addScan', scan, { keyQRCode: scan.keyQRCode })
-    //return this.http.post(this.apiUrl + 'scan', { keyQRCode: scan.keyQRCode }); // se non si passa la data
-    return this.http.post(this.apiUrl + 'scan', scan); //  se passo la data
+    console.log('addScan', scan)
+    console.log('this.apiUrl + infoQrCode', this.apiUrl + 'infoQrCode')
+    return this.http.post(this.apiUrl + 'infoQrCode', scan); //  
     // è possibile specificare opzioni aggiuntive come intestazioni (headers) nel secondo argomento del metodo post
-
   }
 
   addStamping(userScan: any): Observable<any> {
@@ -31,16 +30,16 @@ export class TimbraturaService {
     }
 */
 
-    // Divisione della stringa in un array
+/*     // Divisione della stringa in un array
     let [nome, cognome] = userScan.nome_cognome.split(" ");
 
     let userStamp = {
         nome: nome,
         cognome: cognome,
         indirizzo: userScan.email
-    };
+    }; */
 
-    return this.http.post('https://j9fixo8q0m.execute-api.eu-west-1.amazonaws.com/test/savetimbroTestQrcode', userScan); //  se passo la data
+    return this.http.post(this.apiUrl + 'savetimbroTestQrcode', userScan); //  se passo la data
 /*
 {
   message: "Timbratura effettuata con successo",

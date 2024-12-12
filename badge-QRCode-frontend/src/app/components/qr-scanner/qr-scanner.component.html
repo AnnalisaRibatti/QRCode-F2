@@ -8,9 +8,9 @@
         style="width: 600px; height: 450px;"
         ></div> <!-- immagine ripresa dalla telecamera -->
 
-        <div *ngIf="nominativo">
+        <div *ngIf="user">
             <h3>Dati scansionati:</h3>
-            <p ><b>Ciao</b> {{ nominativo }}</p>
+            <p ><b>Ciao</b> {{ user.nome }} {{ user.cognome }}</p>
             <p>{{ oraTimbr }} {{ dataTimbr }}</p>
             <!-- <p *ngIf="userIsAdded"><b>Badge già registrato</b></p>
 
@@ -18,7 +18,7 @@
         </div>
     </div>
 
-    <div *ngIf="!nominativo" id="setTimbratura" class="set-timbratura">
+    <div *ngIf="!user" id="setTimbratura" class="set-timbratura">
       <h3>Per avviare la scansione selezionare il tipo di timbratura</h3>
       <div class="button-container">
           <button id="entrataBtn" class="timbratura-btn entrata" [class.selected]="selectedButton === 'entrata'" (click)="setTimbratura('entrata')">Entrata</button>

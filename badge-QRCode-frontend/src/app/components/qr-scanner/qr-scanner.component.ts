@@ -4,6 +4,7 @@ import { ENVIRONMENT } from '../../../environments/environment';
 
 import { Scan } from '../../models/Scan';
 import { TimbraturaService } from './../../services/timbratura.service';
+import { User } from '../../models/User';
 
 @Component({
   selector: 'app-qr-scanner',
@@ -27,9 +28,9 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
 
   //public userIsAdded: boolean = false;
 
-  public nominativo?: string;
   public dataTimbr?: string;
   public oraTimbr?: string;
+  user?: User;
 
 
 
@@ -84,7 +85,7 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
     this.actionType = action; // Imposta la variabile in base al pulsante cliccato
     this.buttonSelected = true;
     this.selectedButton = action; // Imposta il pulsante selezionato
-    
+
     this.startScanning(); // Avviare lo scanner se necessario
 
     console.log(`Timbratura impostata a: ${this.actionType}`);
@@ -95,12 +96,12 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
     this.isScanning = true; // Imposta lo stato di scansione a vero
 
     if (!this.isScanningEnabled) return; // Controlla se la scansione è abilitata
-      this.nominativo = undefined;
+      this.user = undefined;
       this.errorDisplayed = false; // Resetta l'indicatore della visualizzazione dell'errore
 
       const qrCodeSuccessCallback = (decodedText: string, decodedResult: any) => {
         this.scannedData = {
-          keyQRCode: decodedText,
+          qrcodeToken : decodedText,
         }; // Salva il dato decodificato
         console.log(this.scannedData)
 
@@ -116,8 +117,16 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
           this.timbraturaService.addScan(this.scannedData).subscribe({ // Chiamata al backend
             next: (response) => {
               console.log('response', response);
-
-              this.nominativo = response.nome_cognome;
+              console.log('response.body', response.body);
+              const body = JSON.parse(response.body);
+              console.log('body', body);
+              /*         {
+                "nome":"",
+                "cognome":"",
+                "email":""
+                } */
+               this.user = body[0];
+               console.log('user', this.user);
 
               this.isScanningEnabled = false; // Disabilita la scansione
 

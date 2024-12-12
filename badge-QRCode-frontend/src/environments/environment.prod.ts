@@ -1,6 +1,6 @@
 export const ENVIRONMENT = {
   production: true,
-  apiUrl: 'http://localhost:3000',
+  apiUrl: 'https://j9fixo8q0m.execute-api.eu-west-1.amazonaws.com',
   timeToExpire: 60,
   framerPerSecond: 5,
   msScanningEnabled: 10000 // 10 secondi
