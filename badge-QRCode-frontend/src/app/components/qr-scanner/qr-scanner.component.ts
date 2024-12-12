@@ -15,6 +15,7 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
   private errorDisplayed: boolean = false; // Stato per gestire la visualizzazione dell'errore
 
   public buttonSelected: boolean = false;
+  selectedButton: 'entrata' | 'uscita' | null = null; // Aggiungi questa variabile
   public actionType: 'entrata' | 'uscita' | null = null; // Variabile per tenere traccia del tipo di timbratura
   private configScan: any = { fps: ENVIRONMENT.framerPerSecond, qrbox: 430 }; // fotogrammi al secondo e dimensione del box di scansione in pixel.
 
@@ -78,16 +79,15 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
   setTimbratura(action: 'entrata' | 'uscita') {
     console.log('setTimbratura')
 
-    this.stopScanning();
+    //this.stopScanning();
 
     this.actionType = action; // Imposta la variabile in base al pulsante cliccato
     this.buttonSelected = true;
+    this.selectedButton = action; // Imposta il pulsante selezionato
+    
     this.startScanning(); // Avviare lo scanner se necessario
 
     console.log(`Timbratura impostata a: ${this.actionType}`);
-
-    // Qui puoi aggiungere la logica per gestire la timbratura
-    // ad esempio, inviare i dati a un servizio o fare altre operazioni
   };
 
   startScanning() {

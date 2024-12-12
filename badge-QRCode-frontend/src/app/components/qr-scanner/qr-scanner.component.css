@@ -53,3 +53,8 @@
 .uscita {
   background-color: var(--ceruleo); /* Rosso per il pulsante Uscita */
 }
+
+.timbratura-btn.selected {
+  /* border: 2px solid var(--blue); */ /* Cambia il colore del bordo per indicare selezione */
+  box-shadow: 0 0 10px var(--blue); /* Aggiungi un'ombra per evidenziare la selezione */
+}

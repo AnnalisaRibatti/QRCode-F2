@@ -21,8 +21,8 @@
     <div *ngIf="!nominativo" id="setTimbratura" class="set-timbratura">
       <h3>Per avviare la scansione selezionare il tipo di timbratura</h3>
       <div class="button-container">
-          <button class="timbratura-btn entrata" (click)="setTimbratura('entrata')">Entrata</button>
-          <button class="timbratura-btn uscita" (click)="setTimbratura('uscita')">Uscita</button>
+          <button id="entrataBtn" class="timbratura-btn entrata" [class.selected]="selectedButton === 'entrata'" (click)="setTimbratura('entrata')">Entrata</button>
+          <button id="uscitaBtn" class="timbratura-btn uscita" [class.selected]="selectedButton === 'uscita'" (click)="setTimbratura('uscita')">Uscita</button>
       </div>
   </div>
 </div>
