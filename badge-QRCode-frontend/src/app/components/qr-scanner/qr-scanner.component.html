@@ -5,19 +5,20 @@
         <div
         id="reader"
         [class.disabled]="!buttonSelected"
-        style="width: 600px; height: 400px;"
+        style="width: 600px; height: 450px;"
         ></div> <!-- immagine ripresa dalla telecamera -->
 
         <div *ngIf="nominativo">
             <h3>Dati scansionati:</h3>
             <p ><b>Ciao</b> {{ nominativo }}</p>
+            <p>{{ oraTimbr }} {{ dataTimbr }}</p>
             <!-- <p *ngIf="userIsAdded"><b>Badge già registrato</b></p>
 
             <br><p *ngFor="let item of listScannedData"><b>Utente:</b> {{ item.keyQRCode }}, scansionato al momento: {{ null | date : "dd-MM-yyyy HH:mm:ss"}}</p> -->
         </div>
     </div>
 
-    <div id="setTimbratura" class="set-timbratura">
+    <div *ngIf="!nominativo" id="setTimbratura" class="set-timbratura">
       <h3>Per avviare la scansione selezionare il tipo di timbratura</h3>
       <div class="button-container">
           <button class="timbratura-btn entrata" (click)="setTimbratura('entrata')">Entrata</button>

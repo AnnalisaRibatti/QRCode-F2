@@ -27,6 +27,8 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
   //public userIsAdded: boolean = false;
 
   public nominativo?: string;
+  public dataTimbr?: string;
+  public oraTimbr?: string;
 
 
 
@@ -124,19 +126,25 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
               this.timbraturaService.addStamping(response).subscribe({ // Chiamata al backend
                 next: (response) => {
                   console.log('response', response);
-/*
-{
-  message: "Timbratura effettuata con successo",
-  item:{
-    email: "mario.rossi@example.com",
-    nome_cognome: "Mario Rossi",
-    id_timbratura: "JISDHU-SFFS-SFGSSF-SFSF",
-    ultima_timbratura: "E",
-    data_timbratura: "11/12/2024",
-    ora_timbratura: "15:20:34"
-  }
-}
-*/
+                  console.log('response.body', response.body);
+                  /*
+                  {
+                    message: "Timbratura effettuata con successo",
+                    item:{
+                      email: "mario.rossi@example.com",
+                      nome_cognome: "Mario Rossi",
+                      id_timbratura: "JISDHU-SFFS-SFGSSF-SFSF",
+                      ultima_timbratura: "E",
+                      data_timbratura: "11/12/2024",
+                      ora_timbratura: "15:20:34"
+                    }
+                  }
+                  */
+
+                  const body = JSON.parse(response.body);
+
+                  this.dataTimbr = body.item.data_timbratura;
+                  this.oraTimbr =  body.item.ora_timbratura;
                 },
                 error: (err) => {
                   console.error("Error adding scan", err);
