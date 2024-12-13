@@ -18,12 +18,16 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
   buttonSelected: boolean = false;
   selectedButton: 'entrata' | 'uscita' | null = null; // Aggiungi questa variabile
   actionType: 'entrata' | 'uscita' | null = null; // Variabile per tenere traccia del tipo di timbratura
+
   private configScan: any = { fps: ENVIRONMENT.framerPerSecond, qrbox: 430 }; // fotogrammi al secondo e dimensione del box di scansione in pixel.
 
   scannedData?: Scan;
+
   private isScanningEnabled: boolean = true; // Stato per gestire la scansione
   private isScanning: boolean = false;
   private scannerTimeout: any; // per gestire il timeout della scansione.
+  private inactivityTimeout: any; // Timeout per inattività
+
 
   dataTimbr?: string;
   oraTimbr?: string;
@@ -43,6 +47,8 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
 
   ngOnDestroy(): void {
     this.stopScanning();
+
+    clearTimeout(this.inactivityTimeout); // Pulisci il timeout di inattività
   };
 
   setTimbratura(action: 'entrata' | 'uscita'): void {
@@ -57,22 +63,32 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
     // Cancella il timeout se esiste
     if (this.scannerTimeout) {
       clearTimeout(this.scannerTimeout);
-  }
+    }
+
+    // Inizia il timeout di inattività
+    this.startInactivityTimeout();
 
     // Avvia la scansione solo se non è già in corso
     if (!this.isScanning) {
       this.startScanning(); // Avviare lo scanner se non è già in corso
     } else {
-      // Se la scansione è già in corso, puoi anche considerare di resettare i dati scansionati
-      this.scannedData = undefined;
-      this.user = undefined;
+      // Qui, se la scansione è già in corso, potresti voler anche resettare il timeout di inattività
+      this.resetInactivityTimeout();
+      //this.resetScanner();
+    }
+
+    // Se la scansione è in standby, riabilitala
+    if (!this.isScanningEnabled) {
+      this.isScanningEnabled = true; // Riabilita la scansione
+      this.startScanning(); // Avvia di nuovo la scansione
     }
   };
 
   startScanning(): void {
     console.log('startScanning')
-    
+
     if (!this.isScanningEnabled) return; // Controlla se la scansione è abilitata
+
       this.isScanning = true; // Imposta lo stato di scansione a vero
       this.user = undefined;
       this.errorDisplayed = false; // Resetta l'indicatore della visualizzazione dell'errore
@@ -84,72 +100,8 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
         console.log(this.scannedData)
 
         console.log('chiamata al be post addScan')
-        this.timbraturaService.addScan(this.scannedData).subscribe({ // Chiamata al backend
-          next: (response) => {
-            console.log('response', response);
-            console.log('response.body', response.body);
-            const body = JSON.parse(response.body);
-            console.log('body', body);
-            /*         {
-              "nome":"",
-              "cognome":"",
-              "email":""
-              } */
-              this.user = body[0];
-              console.log('user', this.user);
-
-            this.isScanningEnabled = false; // Disabilita la scansione
-
-            // chiamo altro endpoint timbrature
-            console.log('chiamata al be post addStamping')
-            this.timbraturaService.addStamping(this.user).subscribe({ // Chiamata al backend
-              next: (response) => {
-                console.log('response', response);
-                console.log('response.body', response.body);
-                /*
-                {
-                  message: "Timbratura effettuata con successo",
-                  item:{
-                    email: "mario.rossi@example.com",
-                    nome_cognome: "Mario Rossi",
-                    id_timbratura: "JISDHU-SFFS-SFGSSF-SFSF",
-                    ultima_timbratura: "E",
-                    data_timbratura: "11/12/2024",
-                    ora_timbratura: "15:20:34"
-                  }
-                }
-                */
-
-                const body = JSON.parse(response.body);
-
-                this.dataTimbr = body.item.data_timbratura;
-                this.oraTimbr =  body.item.ora_timbratura;
-              },
-              error: (err) => {
-                console.error("Error adding scan", err);
-              }
-            })
-
-            setTimeout(() => {
-              this.isScanningEnabled = true; // Riabilita la scansione dopo 10 secondi
-            }, ENVIRONMENT.msScanningEnabled); // 10 secondi
-
-            this.scannerStandby();
-          },
-          error: (err) => {
-            console.error("Error adding scan", err);
-          }
-        });
-
-  /*    // chiude la fotocamera dopo l'uso
-          this.html5Qrcode?.stop().catch(err => {
-          console.error("Error stopping the QR code scanner", err);
-        });  */
-
-        // Imposta un timeout per mettere in standby la fotocamera
-        this.scannerTimeout = setTimeout(() => {
-          this.scannerStandby();
-        }, ENVIRONMENT.msScanningStanby);
+        this.addScan();
+        this.resetInactivityTimeout(); // Resetta il timeout di inattività
       };
 
       const qrCodeErrorCallback = (errorMessage: string) => {
@@ -176,14 +128,85 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
       console.log('addUserIfNotExists')
   };
 
+  private addScan(): void {
+    this.timbraturaService.addScan(this.scannedData!).subscribe({
+      next: (response) => {
+        const body = JSON.parse(response.body);
+        this.user = body[0];
+        this.isScanningEnabled = false;
+
+        this.timbraturaService.addStamping(this.user).subscribe({
+          next: (response) => {
+            const body = JSON.parse(response.body);
+            this.dataTimbr = body.item.data_timbratura;
+            this.oraTimbr = body.item.ora_timbratura;
+            this.startInactivityTimeout(); // Inizia il timeout di inattività
+          },
+          error: (err) => {
+            console.error("Error adding stamping", err);
+          }
+        });
+      },
+      error: (err) => {
+        console.error("Error adding scan", err);
+      }
+    });
+  }
+
+  private resetScanner(): void {
+    console.log('resetScanner')
+    this.scannedData = undefined;
+    this.user = undefined;
+  }
+
+  private startInactivityTimeout(): void {
+    console.log('startInactivityTimeout')
+    this.inactivityTimeout = setTimeout(() => {
+      this.scannerStandby();
+    }, ENVIRONMENT.msScanningEnabled);
+  }
+
+  private resetInactivityTimeout(): void {
+    console.log('resetInactivityTimeout')
+    clearTimeout(this.inactivityTimeout);
+    this.startInactivityTimeout();
+  }
+
   private scannerStandby(): void {
+    console.log('scannerStandby')
+    this.resetScanner();
+
+    this.buttonSelected = false;
+    this.selectedButton = null; // Imposta il pulsante selezionato
+
+    this.isScanningEnabled = false; // Controlla se la scansione è abilitata
+
+    this.stopScanning();
+  }
+
+  private stopScanning(): void {
+    if (this.isScanning) {
+      this.html5Qrcode?.stop().then(() => {
+        this.isScanning = false; // Imposta lo stato di scansione a falso dopo che è stata fermata
+      }).catch(err => {
+        console.error("Error stopping the QR code scanner", err);
+      });
+    }
+  };
+
+
+
+
+/*   private scannerStandbyOLD(): void {
     console.log('scannerStandby')
     setTimeout(() => {
       this.actionType = null; // Imposta la variabile in base al pulsante cliccato
+
       this.buttonSelected = false;
       this.selectedButton = null; // Imposta il pulsante selezionato
 
       this.isScanningEnabled = false; // Controlla se la scansione è abilitata
+
       this.user = undefined;
       this.errorDisplayed = false; // Resetta l'indicatore della visualizzazione dell'errore
       this.scannedData = undefined;
@@ -191,17 +214,76 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
       this. stopScanning();
 
     }, ENVIRONMENT.msScanningStanby);
-  };
+  }; */
 
-  private stopScanning(): void {
-    if (this.isScanning) {
-        this.html5Qrcode?.stop().then(() => {
-            this.isScanning = false; // Imposta lo stato di scansione a falso dopo che è stata fermata
-        }).catch(err => {
-            console.error("Error stopping the QR code scanner", err);
-        });
-    }
-  };
+  fun() {
+    this.timbraturaService.addScan(this.scannedData!).subscribe({ // Chiamata al backend
+      next: (response) => {
+        console.log('response', response);
+        console.log('response.body', response.body);
+        const body = JSON.parse(response.body);
+        console.log('body', body);
+        /*         {
+          "nome":"",
+          "cognome":"",
+          "email":""
+          } */
+          this.user = body[0];
+          console.log('user', this.user);
+
+        this.isScanningEnabled = false; // Disabilita la scansione
+
+        // chiamo altro endpoint timbrature
+        console.log('chiamata al be post addStamping')
+        this.timbraturaService.addStamping(this.user).subscribe({ // Chiamata al backend
+          next: (response) => {
+            console.log('response', response);
+            console.log('response.body', response.body);
+            /*
+            {
+              message: "Timbratura effettuata con successo",
+              item:{
+                email: "mario.rossi@example.com",
+                nome_cognome: "Mario Rossi",
+                id_timbratura: "JISDHU-SFFS-SFGSSF-SFSF",
+                ultima_timbratura: "E",
+                data_timbratura: "11/12/2024",
+                ora_timbratura: "15:20:34"
+              }
+            }
+            */
+
+            const body = JSON.parse(response.body);
+
+            this.dataTimbr = body.item.data_timbratura;
+            this.oraTimbr =  body.item.ora_timbratura;
+          },
+          error: (err) => {
+            console.error("Error adding scan", err);
+          }
+        })
+
+        setTimeout(() => {
+          this.isScanningEnabled = true; // Riabilita la scansione dopo 10 secondi
+        }, ENVIRONMENT.msScanningEnabled); // 10 secondi
+
+        this.scannerStandby();
+      },
+      error: (err) => {
+        console.error("Error adding scan", err);
+      }
+    });
+
+/*    // chiude la fotocamera dopo l'uso
+      this.html5Qrcode?.stop().catch(err => {
+      console.error("Error stopping the QR code scanner", err);
+    });  */
+
+    // Imposta un timeout per mettere in standby la fotocamera
+    this.scannerTimeout = setTimeout(() => {
+      this.scannerStandby();
+    }, ENVIRONMENT.msScanningStanby);
+  }
 }
 
 
