@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { Scan } from '../models/Scan';
 
 import { ENVIRONMENT } from '../../environments/environment';
+import { User } from '../models/User';
 
 @Injectable({
   providedIn: 'root'
@@ -20,7 +21,7 @@ export class TimbraturaService {
     // è possibile specificare opzioni aggiuntive come intestazioni (headers) nel secondo argomento del metodo post
   };
 
-  addStamping(userScan: any): Observable<any> {
+  addStamping(userScan: User): Observable<any> {
 /*
     {
       email: "a.bianchi@f2.it",
@@ -29,24 +30,15 @@ export class TimbraturaService {
       ultima_timbratura: "entrata"
     }
 */
-    return this.http.post(this.apiUrl + 'savetimbroTestQrcode', userScan);
-/*
-{
-  message: "Timbratura effettuata con successo",
-  item:{
-    email: "mario.rossi@example.com",
-    nome_cognome: "Mario Rossi",
-    id_timbratura: "JISDHU-SFFS-SFGSSF-SFSF",
-    ultima_timbratura: "E",
-    data_timbratura: "11/12/2024",
-    ora_timbratura: "15:20:34"
-  }
-}
-*/
+    //return this.http.post(this.apiUrl + 'savetimbroTestQrcode', userScan);
+
+    return this.http.post(this.apiUrl + 'presenzeQR', {
+      email: userScan.email
+    });
   };
 
   //capire se serve
   getScans(): Observable<Scan[]> {
-    return this.http.get<Scan[]>(this.apiUrl + 'scans');
+    return this.http.get<Scan[]>(this.apiUrl + 'presenze');
   };
 }

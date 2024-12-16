@@ -28,10 +28,13 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
   private scannerTimeout: any; // per gestire il timeout della scansione.
   private inactivityTimeout: any; // Timeout per inattività
 
-
-  dataTimbr?: string;
-  oraTimbr?: string;
   user?: User;
+
+  //entrataUscita?: string;
+  message?: string;
+
+
+  public listScannedData: Scan[] = Array<Scan>();
 
 
   constructor(
@@ -58,6 +61,8 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
     this.buttonSelected = true;
     this.selectedButton = action; // Imposta il pulsante selezionato
 
+    this.message = undefined;
+
     console.log(`Timbratura impostata a: ${this.actionType}`);
 
     // Cancella il timeout se esiste
@@ -82,6 +87,9 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
       this.isScanningEnabled = true; // Riabilita la scansione
       this.startScanning(); // Avvia di nuovo la scansione
     }
+
+    
+    this.removeExpiredScans(); // Rimuove gli scans scaduti
   };
 
   startScanning(): void {
@@ -100,6 +108,14 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
           qrcodeToken : decodedText,
         }; // Salva il dato decodificato
         console.log(this.scannedData)
+
+        // Controlla se l'utente esiste già nella lista degli scan
+        const userExists = this.listScannedData.some(scan => scan.qrcodeToken === this.scannedData!.qrcodeToken);
+        if (userExists) {
+          console.log('addUserIfNotExists', userExists, 'non proseguo');
+          return; // L'utente esiste già, non proseguire
+        };
+        console.log('addUserIfNotExists', userExists, 'proseguo');
 
         // Disabilita la scansione
         this.isScanningEnabled = false;
@@ -162,6 +178,8 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
     console.log('resetScanner')
     this.scannedData = undefined;
     this.user = undefined;
+
+    this.message = undefined;
   }
 
   private startInactivityTimeout(): void {
@@ -201,113 +219,86 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
 
   private processTimbratura(): void {
     console.log('chiamata al be post addStamping');
-    this.timbraturaService.addStamping(this.user).subscribe({
+    this.timbraturaService.addStamping(this.user!).subscribe({
       next: (response) => {
         const body = JSON.parse(response.body);
-        this.dataTimbr = body.item.data_timbratura;
-        this.oraTimbr = body.item.ora_timbratura;
-        // Qui, puoi anche inserire un timeout per riabilitare la scansione se necessario
 
-/*         this.listScannedData = scans.map(scan => ({
-          user: scan.user,
-          //date: new Date(scan.date).getTime()
-          date: Math.floor(new Date(scan.date).getTime() / 1000) // Converte in secondi
-        })); */
+        if(response.statusCode == '200') {
+          let userStamping;
+
+          if(body.newPresenza) {
+            userStamping = body.newPresenza
+          } else if(body.items && body.items.length > 0) {
+            userStamping = body.items[0]
+          }
+
+          this.scannedData!.data = userStamping.data.S;
+          let countTimbri = userStamping.countTimbri.N;
+
+          
+          console.log('countTimbri', countTimbri, (countTimbri-1));
+          
+          this.scannedData!.ora = userStamping['ora'+countTimbri].S;
+          
+          this.scannedData!.entrataUscita = countTimbri % 2 === 0 ? 'uscita' : 'entrata';
+
+          console.log(this.scannedData)
+          this.listScannedData.push(this.scannedData!);
+          //this.addUserIfNotExists(this.scannedData!)
+          console.log(this.listScannedData)
+        }
+        
+        if(this.user?.ultima_timbratura != this.scannedData!.entrataUscita ) {
+          this.message = 'La selezione del tipo timbratura e le timbrature registrate non corrispondono!';
+        }
+        // Qui, puoi anche inserire un timeout per riabilitare la scansione se necessario
       },
       error: (err) => {
         console.error("Error adding stamping", err);
+        this.message = err;
       }
     });
   };
 
+/*   private addUserIfNotExists(newScan: Scan): boolean {
+    // Controlla se l'utente esiste già nella lista degli scan
+    const userExists = this.listScannedData.some(scan => scan.qrcodeToken === newScan.qrcodeToken);
+    console.log('addUserIfNotExists', userExists);
 
-/*   private scannerStandbyOLD(): void {
-    console.log('scannerStandby')
-    setTimeout(() => {
-      this.actionType = null; // Imposta la variabile in base al pulsante cliccato
-
-      this.buttonSelected = false;
-      this.selectedButton = null; // Imposta il pulsante selezionato
-
-      this.isScanningEnabled = false; // Controlla se la scansione è abilitata
-
-      this.user = undefined;
-      this.errorDisplayed = false; // Resetta l'indicatore della visualizzazione dell'errore
-      this.scannedData = undefined;
-
-      this. stopScanning();
-
-    }, ENVIRONMENT.msScanningStanby);
+    if (userExists) {
+        return false; // L'utente esiste già, non aggiungere
+    } else {
+        this.listScannedData.push(newScan); // Aggiungi il nuovo scan alla lista
+        return true; // L'utente è stato aggiunto con successo
+    }
   }; */
 
-  fun() {
-    this.timbraturaService.addScan(this.scannedData!).subscribe({ // Chiamata al backend
-      next: (response) => {
-        console.log('response', response);
-        console.log('response.body', response.body);
-        const body = JSON.parse(response.body);
-        console.log('body', body);
-        /*         {
-          "nome":"",
-          "cognome":"",
-          "email":""
-          } */
-          this.user = body[0];
-          console.log('user', this.user);
+  private removeExpiredScans() {
+    const currentTime = new Date().getTime();
+    const expirationTime = ENVIRONMENT.timeToExpire * 1000; // 60 secondi in millisecondi
 
-        this.isScanningEnabled = false; // Disabilita la scansione
+    this.listScannedData = this.listScannedData.filter(scan => 
+    {
+      // Combina le stringhe in un formato che JavaScript può interpretare
+      // Nota: il formato deve essere YYYY-MM-DDTHH:mm:ss per essere compatibile
+      const combinedString =  scan.data!.split('/').reverse().join('-') + 'T' +  scan.ora;
 
-        // chiamo altro endpoint timbrature
-        console.log('chiamata al be post addStamping')
-        this.timbraturaService.addStamping(this.user).subscribe({ // Chiamata al backend
-          next: (response) => {
-            console.log('response', response);
-            console.log('response.body', response.body);
-            /*
-            {
-              message: "Timbratura effettuata con successo",
-              item:{
-                email: "mario.rossi@example.com",
-                nome_cognome: "Mario Rossi",
-                id_timbratura: "JISDHU-SFFS-SFGSSF-SFSF",
-                ultima_timbratura: "E",
-                data_timbratura: "11/12/2024",
-                ora_timbratura: "15:20:34"
-              }
-            }
-            */
+      // Crea un oggetto Date
+      const date = new Date(combinedString);
 
-            const body = JSON.parse(response.body);
+      // Ottieni il timestamp in millisecondi
+      const milliseconds = date.getTime();
 
-            this.dataTimbr = body.item.data_timbratura;
-            this.oraTimbr =  body.item.ora_timbratura;
-          },
-          error: (err) => {
-            console.error("Error adding scan", err);
-          }
-        })
+      console.log(currentTime);
+      console.log(milliseconds);
+      console.log(expirationTime);
 
-        setTimeout(() => {
-          this.isScanningEnabled = true; // Riabilita la scansione dopo 10 secondi
-        }, ENVIRONMENT.msScanningEnabled); // 10 secondi
-
-        this.scannerStandby();
-      },
-      error: (err) => {
-        console.error("Error adding scan", err);
-      }
+      return (currentTime - milliseconds) <= expirationTime; // Mantieni solo scans non scaduti
     });
 
-/*    // chiude la fotocamera dopo l'uso
-      this.html5Qrcode?.stop().catch(err => {
-      console.error("Error stopping the QR code scanner", err);
-    });  */
+    console.log('Updated listScannedData:', this.listScannedData);
+  }; 
 
-    // Imposta un timeout per mettere in standby la fotocamera
-    this.scannerTimeout = setTimeout(() => {
-      this.scannerStandby();
-    }, ENVIRONMENT.msScanningStanby);
-  }
 }
 
 

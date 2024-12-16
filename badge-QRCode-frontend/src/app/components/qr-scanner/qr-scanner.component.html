@@ -7,13 +7,6 @@
         [class.disabled]="!buttonSelected"
         style="width: 600px; height: 450px;"
         ></div> <!-- immagine ripresa dalla telecamera -->
-
-        <div *ngIf="user">
-            <h3>Dati scansionati:</h3>
-            <p ><b>Ciao</b> {{ user.nome }} {{ user.cognome }}</p>
-            <p>{{ scannedData?.qrcodeToken }}</p>
-            <p>{{ oraTimbr }} {{ dataTimbr }}</p>
-        </div>
     </div>
 
     <div *ngIf="!user" id="setTimbratura" class="set-timbratura">
@@ -22,5 +15,18 @@
           <button id="entrataBtn" class="timbratura-btn entrata" [class.selected]="selectedButton === 'entrata'" (click)="setTimbratura('entrata')">Entrata</button>
           <button id="uscitaBtn" class="timbratura-btn uscita" [class.selected]="selectedButton === 'uscita'" (click)="setTimbratura('uscita')">Uscita</button>
       </div>
-  </div>
+    </div>
+
+    
+    <div id="user" *ngIf="user">
+        <h3>Dati scansionati:</h3>
+        <p ><b>Ciao</b> {{ user.nome }} {{ user.cognome }}</p>
+        <p>{{ scannedData?.qrcodeToken }}</p>
+        <p>{{ scannedData?.ora }} {{ scannedData?.data }}</p>
+        <p><b>{{ scannedData?.entrataUscita }}</b></p>
+    </div>
+
+    <div id="message" *ngIf="message">
+        <p>{{message}}</p>
+    </div>
 </div>
