@@ -101,6 +101,7 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
 
         console.log('chiamata al be post addScan')
         this.addScan();
+
         this.resetInactivityTimeout(); // Resetta il timeout di inattività
       };
 
@@ -133,19 +134,28 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
       next: (response) => {
         const body = JSON.parse(response.body);
         this.user = body[0];
-        this.isScanningEnabled = false;
 
-        this.timbraturaService.addStamping(this.user).subscribe({
-          next: (response) => {
-            const body = JSON.parse(response.body);
-            this.dataTimbr = body.item.data_timbratura;
-            this.oraTimbr = body.item.ora_timbratura;
-            this.startInactivityTimeout(); // Inizia il timeout di inattività
-          },
-          error: (err) => {
-            console.error("Error adding stamping", err);
-          }
-        });
+        if(this.user){
+          this.user.ultima_timbratura = this.actionType as string,
+
+          this.isScanningEnabled = false;
+
+
+          // Procedi con la timbratura
+          this.processTimbratura();
+
+  /*         this.timbraturaService.addStamping(this.user).subscribe({
+            next: (response) => {
+              const body = JSON.parse(response.body);
+              this.dataTimbr = body.item.data_timbratura;
+              this.oraTimbr = body.item.ora_timbratura;
+              this.startInactivityTimeout(); // Inizia il timeout di inattività
+            },
+            error: (err) => {
+              console.error("Error adding stamping", err);
+            }
+          }); */    
+        }
       },
       error: (err) => {
         console.error("Error adding scan", err);
@@ -194,7 +204,26 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   };
 
+  private processTimbratura(): void {
+    console.log('chiamata al be post addStamping');
+    this.timbraturaService.addStamping(this.user).subscribe({
+      next: (response) => {
+        const body = JSON.parse(response.body);
+        this.dataTimbr = body.item.data_timbratura;
+        this.oraTimbr = body.item.ora_timbratura;
+        // Qui, puoi anche inserire un timeout per riabilitare la scansione se necessario
 
+/*         this.listScannedData = scans.map(scan => ({
+          user: scan.user,
+          //date: new Date(scan.date).getTime()
+          date: Math.floor(new Date(scan.date).getTime() / 1000) // Converte in secondi
+        })); */
+      },
+      error: (err) => {
+        console.error("Error adding stamping", err);
+      }
+    });
+  };
 
 
 /*   private scannerStandbyOLD(): void {
