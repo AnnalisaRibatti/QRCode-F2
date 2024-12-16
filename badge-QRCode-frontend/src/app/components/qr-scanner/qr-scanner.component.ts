@@ -94,10 +94,15 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
       this.errorDisplayed = false; // Resetta l'indicatore della visualizzazione dell'errore
 
       const qrCodeSuccessCallback = (decodedText: string, decodedResult: any) => {
-        this.scannedData = {
+        if (!this.isScanningEnabled) return; // Controlla di nuovo se la scansione è abilitata
+        
+        this.scannedData = { 
           qrcodeToken : decodedText,
         }; // Salva il dato decodificato
         console.log(this.scannedData)
+
+        // Disabilita la scansione
+        this.isScanningEnabled = false;
 
         console.log('chiamata al be post addScan')
         this.addScan();
@@ -138,23 +143,13 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
         if(this.user){
           this.user.ultima_timbratura = this.actionType as string,
 
-          this.isScanningEnabled = false;
-
+          // Disabilitare la scansione per un certo tempo prima di riabilitarla
+          setTimeout(() => {
+            this.isScanningEnabled = true; // Riabilita la scansione dopo ENVIRONMENT.msScanningEnabled
+          }, ENVIRONMENT.msScanningEnabled); // msScanningEnabled è il tempo in millisecondi
 
           // Procedi con la timbratura
-          this.processTimbratura();
-
-  /*         this.timbraturaService.addStamping(this.user).subscribe({
-            next: (response) => {
-              const body = JSON.parse(response.body);
-              this.dataTimbr = body.item.data_timbratura;
-              this.oraTimbr = body.item.ora_timbratura;
-              this.startInactivityTimeout(); // Inizia il timeout di inattività
-            },
-            error: (err) => {
-              console.error("Error adding stamping", err);
-            }
-          }); */    
+          this.processTimbratura();  
         }
       },
       error: (err) => {
