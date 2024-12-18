@@ -45,6 +45,10 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
   ngAfterViewInit(): void {
     // attiva la scansione
     this.html5Qrcode = new Html5Qrcode("reader");
+
+    const isSmallScreen = window.innerWidth <= 1280;
+    console.log('isSmallScreen', isSmallScreen)
+    this.configScan.qrbox = isSmallScreen ? 330 : 430;
   };
 
   ngOnDestroy(): void {
