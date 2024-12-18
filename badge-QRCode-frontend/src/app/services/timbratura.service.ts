@@ -32,9 +32,7 @@ export class TimbraturaService {
 */
     //return this.http.post(this.apiUrl + 'savetimbroTestQrcode', userScan);
 
-    return this.http.post(this.apiUrl + 'presenzeQR', {
-      email: userScan.email
-    });
+    return this.http.post(this.apiUrl + 'presenzeQR', userScan);
   };
 
   //capire se serve

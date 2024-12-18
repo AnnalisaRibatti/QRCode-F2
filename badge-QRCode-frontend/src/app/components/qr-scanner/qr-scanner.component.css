@@ -12,7 +12,27 @@
   height: 100vh; /* Imposta l'altezza al 100% della finestra */
 }
 
+.pgTimbratura {
+  text-align: center
+}
 
+.scanQRCode {
+  justify-items: center;
+  margin: 3rem;
+}
+
+.reader {
+  width: 600px;
+  height: 450px;
+
+  aspect-ratio: 16 / 9; /* Mantieni un rapporto di aspetto 16:9 */
+  margin: 0 auto; /* Centra il reader */
+}
+
+.disabled {
+  opacity: 0.5; /* Opacità ridotta per il contenitore disabilitato */
+  pointer-events: none; /* Disabilita gli eventi del mouse */
+}
 
 .set-timbratura {
   padding: 20px;
@@ -58,3 +78,44 @@
   /* border: 2px solid var(--blue); */ /* Cambia il colore del bordo per indicare selezione */
   box-shadow: 0 0 10px var(--blue); /* Aggiungi un'ombra per evidenziare la selezione */
 }
+
+@media only screen and (max-width: 1280px) {
+  :host {
+    background-size: 1280px 540px; /* Imposta le dimensioni specifiche per l'immagine di sfondo */
+    width: 1280px; /* Imposta la larghezza del contenitore */
+    height: 540px; /* Imposta l'altezza del contenitore */
+  }
+
+  .set-timbratura {
+    padding: 20px;
+    margin-top: 0;
+    max-width: 1280px; /* Limita la larghezza massima del contenitore */
+    margin-left: auto; /* Centra orizzontalmente */
+    margin-right: auto; /* Centra orizzontalmente */
+    max-width: 100%; /* Permette al contenitore di adattarsi alla larghezza dello schermo */
+    padding: 10px; /* Riduce il padding per dispositivi più piccoli */
+  }
+
+  .scanQRCode {
+    margin: 0;
+  }
+
+  .reader {
+    height: 350px;
+    width: 500px;
+    width: 590px;
+  }
+
+  #qr-shaded-region{
+
+  }
+
+  :host ::ng-deep video {
+    height: inherit;
+  }
+  
+
+}
+
+
+

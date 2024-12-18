@@ -1,15 +1,25 @@
-<div style="text-align:center">
+<div 
+    id="pgTimbratura"
+    class="pgTimbratura"
+>
     <h1>Timbratura con QR Code</h1>
 
-    <div id="scanQRCode" style="justify-items: center; margin: 3rem;">
+    <div 
+        id="scanQRCode"
+        class="scanQRCode"
+    >
         <div
-        id="reader"
-        [class.disabled]="!buttonSelected"
-        style="width: 600px; height: 450px;"
+            id="reader"
+            class="reader"
+            [class.disabled]="!buttonSelected"
         ></div> <!-- immagine ripresa dalla telecamera -->
     </div>
 
-    <div *ngIf="!user" id="setTimbratura" class="set-timbratura">
+    <div 
+        *ngIf="!user" 
+        id="setTimbratura" 
+        class="set-timbratura"
+    >
       <h3>Per avviare la scansione selezionare il tipo di timbratura</h3>
       <div class="button-container">
           <button id="entrataBtn" class="timbratura-btn entrata" [class.selected]="selectedButton === 'entrata'" (click)="setTimbratura('entrata')">Entrata</button>
@@ -18,15 +28,21 @@
     </div>
 
     
-    <div id="user" *ngIf="user">
+    <div 
+        *ngIf="user"
+        id="user" 
+    >
         <h3>Dati scansionati:</h3>
         <p ><b>Ciao</b> {{ user.nome }} {{ user.cognome }}</p>
         <p>{{ scannedData?.qrcodeToken }}</p>
         <p>{{ scannedData?.ora }} {{ scannedData?.data }}</p>
-        <p><b>{{ scannedData?.entrataUscita }}</b></p>
+        <p><b>{{ scannedData?.entrataUscita ?? '' | capitalize }}</b></p>
     </div>
 
-    <div id="message" *ngIf="message">
+    <div 
+        id="message" 
+        *ngIf="message"
+    >
         <p>{{message}}</p>
     </div>
 </div>

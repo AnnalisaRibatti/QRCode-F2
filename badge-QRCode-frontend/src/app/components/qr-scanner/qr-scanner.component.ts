@@ -33,7 +33,6 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
   //entrataUscita?: string;
   message?: string;
 
-
   public listScannedData: Scan[] = Array<Scan>();
 
 
@@ -55,15 +54,11 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
   };
 
   setTimbratura(action: 'entrata' | 'uscita'): void {
-    console.log('setTimbratura')
-
     this.actionType = action; // Imposta la variabile in base al pulsante cliccato
     this.buttonSelected = true;
     this.selectedButton = action; // Imposta il pulsante selezionato
 
     this.message = undefined;
-
-    console.log(`Timbratura impostata a: ${this.actionType}`);
 
     // Cancella il timeout se esiste
     if (this.scannerTimeout) {
@@ -93,8 +88,6 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
   };
 
   startScanning(): void {
-    console.log('startScanning')
-
     if (!this.isScanningEnabled) return; // Controlla se la scansione è abilitata
 
       this.isScanning = true; // Imposta lo stato di scansione a vero
@@ -109,18 +102,11 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
         }; // Salva il dato decodificato
         console.log(this.scannedData)
 
-        // Controlla se l'utente esiste già nella lista degli scan
-        const userExists = this.listScannedData.some(scan => scan.qrcodeToken === this.scannedData!.qrcodeToken);
-        if (userExists) {
-          console.log('addUserIfNotExists', userExists, 'non proseguo');
-          return; // L'utente esiste già, non proseguire
-        };
-        console.log('addUserIfNotExists', userExists, 'proseguo');
+        this.addUserIfNotExists(); // Controlla se l'utente esiste già nella lista degli scan
 
         // Disabilita la scansione
         this.isScanningEnabled = false;
 
-        console.log('chiamata al be post addScan')
         this.addScan();
 
         this.resetInactivityTimeout(); // Resetta il timeout di inattività
@@ -157,7 +143,7 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
         this.user = body[0];
 
         if(this.user){
-          this.user.ultima_timbratura = this.actionType as string,
+          this.user.ultimaTimbratura = this.actionType as string,
 
           // Disabilitare la scansione per un certo tempo prima di riabilitarla
           setTimeout(() => {
@@ -175,7 +161,6 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private resetScanner(): void {
-    console.log('resetScanner')
     this.scannedData = undefined;
     this.user = undefined;
 
@@ -183,20 +168,17 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private startInactivityTimeout(): void {
-    console.log('startInactivityTimeout')
     this.inactivityTimeout = setTimeout(() => {
       this.scannerStandby();
     }, ENVIRONMENT.msScanningEnabled);
   }
 
   private resetInactivityTimeout(): void {
-    console.log('resetInactivityTimeout')
     clearTimeout(this.inactivityTimeout);
     this.startInactivityTimeout();
   }
 
   private scannerStandby(): void {
-    console.log('scannerStandby')
     this.resetScanner();
 
     this.buttonSelected = false;
@@ -218,7 +200,6 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
   };
 
   private processTimbratura(): void {
-    console.log('chiamata al be post addStamping');
     this.timbraturaService.addStamping(this.user!).subscribe({
       next: (response) => {
         const body = JSON.parse(response.body);
@@ -248,7 +229,7 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
           console.log(this.listScannedData)
         }
         
-        if(this.user?.ultima_timbratura != this.scannedData!.entrataUscita ) {
+        if(this.user?.ultimaTimbratura != this.scannedData!.entrataUscita ) {
           this.message = 'La selezione del tipo timbratura e le timbrature registrate non corrispondono!';
         }
         // Qui, puoi anche inserire un timeout per riabilitare la scansione se necessario
@@ -273,10 +254,22 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }; */
 
+  addUserIfNotExists() {
+    // Controlla se l'utente esiste già nella lista degli scan
+    const userExists = this.listScannedData.some(scan => scan.qrcodeToken === this.scannedData!.qrcodeToken);
+    if (userExists) {
+      console.log('addUserIfNotExists', userExists, 'non proseguo');
+      return; // L'utente esiste già, non proseguire
+    };
+    console.log('addUserIfNotExists', userExists, 'proseguo');
+  };
+
   private removeExpiredScans() {
+    console.log('removeExpiredScans')
     const currentTime = new Date().getTime();
     const expirationTime = ENVIRONMENT.timeToExpire * 1000; // 60 secondi in millisecondi
-
+    
+    console.log('@@@@@ removeExpiredScans', this.listScannedData)
     this.listScannedData = this.listScannedData.filter(scan => 
     {
       // Combina le stringhe in un formato che JavaScript può interpretare

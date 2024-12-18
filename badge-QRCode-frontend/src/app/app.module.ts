@@ -10,6 +10,7 @@ import { DATE_PIPE_DEFAULT_OPTIONS } from "@angular/common";
 import { HttpClientModule } from '@angular/common/http';
 import { GenerateQRCodeComponent } from './components/generate-qrcode/generate-qrcode.component';
 import { ResultsComponent } from './components/results/results.component';
+import { CapitalizePipe } from './pipe/capitalize.pipe';
 
 
 @NgModule({
@@ -17,7 +18,8 @@ import { ResultsComponent } from './components/results/results.component';
     AppComponent,
     QrScannerComponent,
     GenerateQRCodeComponent,
-    ResultsComponent
+    ResultsComponent,
+    CapitalizePipe
   ],
   imports: [
     BrowserModule,
