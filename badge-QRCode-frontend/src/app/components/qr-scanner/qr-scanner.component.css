@@ -9,6 +9,7 @@
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
+  background-size: 100% 89%; /* Imposta le dimensioni specifiche per l'immagine di sfondo */
   height: 100vh; /* Imposta l'altezza al 100% della finestra */
 }
 
@@ -85,8 +86,9 @@
 
 @media only screen and (max-width: 1280px) {
   :host {
-    background-size: 1280px 540px; /* Imposta le dimensioni specifiche per l'immagine di sfondo */
-      }
+    background-size:  100% 92%; /* Imposta le dimensioni specifiche per l'immagine di sfondo */
+    background-position-y: 0%
+  }
 
   .set-timbratura {
     padding: 20px;
@@ -108,8 +110,10 @@
     width: 590px;
   }
 
-  #qr-shaded-region{
-
+  :host ::ng-deep #qr-shaded-region {
+    border-width: 10px 50px!important;
+    width: 465px;
+    margin-left: 4rem;
   }
 
   :host ::ng-deep video {

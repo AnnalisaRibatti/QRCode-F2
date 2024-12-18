@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, AfterViewInit, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit } from '@angular/core';
 import { Html5Qrcode } from 'html5-qrcode';
 import { ENVIRONMENT } from '../../../environments/environment';
 
@@ -51,7 +51,7 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
     console.log('window.innerWidth', window.innerWidth)
     console.log('window.innerHeight', window.innerHeight)
     console.log('isSmallScreen', isSmallScreen)
-    this.configScan.qrbox = isSmallScreen ? 330 : 430;
+    this.configScan.qrbox = isSmallScreen ? 310 : 400;
   };
 
   ngOnDestroy(): void {
@@ -136,6 +136,7 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
           qrCodeSuccessCallback,
           qrCodeErrorCallback
         ).then(() => {
+          // Applica dopo che il video è stato avviato
         }).catch(err => {
           console.error("Error starting the QR code scanner", err);
         });
@@ -301,5 +302,3 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
   }; 
 
 }
-
-
