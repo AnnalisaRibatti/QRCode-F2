@@ -15,11 +15,11 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
   private html5Qrcode?: Html5Qrcode;
   private errorDisplayed: boolean = false; // Stato per gestire la visualizzazione dell'errore
 
-  buttonSelected: boolean = false;
-  selectedButton: 'entrata' | 'uscita' | null = null; // Aggiungi questa variabile
-  actionType: 'entrata' | 'uscita' | null = null; // Variabile per tenere traccia del tipo di timbratura
+  buttonSelected = false;
+  selectedButton: 'entrata' | 'uscita' | 'pausa' | null = null; // Aggiungi questa variabile
+  private actionType: 'entrata' | 'uscita' | 'pausa' | null = null; // Variabile per tenere traccia del tipo di timbratura
 
-  private configScan: any = { fps: ENVIRONMENT.framerPerSecond, qrbox: 430 }; // fotogrammi al secondo e dimensione del box di scansione in pixel.
+  private configScan = { fps: ENVIRONMENT.framerPerSecond, qrbox: 430 }; // fotogrammi al secondo e dimensione del box di scansione in pixel.
 
   scannedData?: Scan;
 
@@ -33,7 +33,7 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
   //entrataUscita?: string;
   message?: string;
 
-  public listScannedData: Scan[] = Array<Scan>();
+  private listScannedData: Scan[] = Array<Scan>();
 
 
   constructor(
@@ -47,6 +47,9 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
     this.html5Qrcode = new Html5Qrcode("reader");
 
     const isSmallScreen = window.innerWidth <= 1280;
+    //const isSmallScreen = window.innerHeight <= 600;
+    console.log('window.innerWidth', window.innerWidth)
+    console.log('window.innerHeight', window.innerHeight)
     console.log('isSmallScreen', isSmallScreen)
     this.configScan.qrbox = isSmallScreen ? 330 : 430;
   };
@@ -57,7 +60,7 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
     clearTimeout(this.inactivityTimeout); // Pulisci il timeout di inattività
   };
 
-  setTimbratura(action: 'entrata' | 'uscita'): void {
+  setTimbratura(action: 'entrata' | 'uscita' | 'pausa'): void {
     this.actionType = action; // Imposta la variabile in base al pulsante cliccato
     this.buttonSelected = true;
     this.selectedButton = action; // Imposta il pulsante selezionato
@@ -132,7 +135,8 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
           this.configScan,
           qrCodeSuccessCallback,
           qrCodeErrorCallback
-        ).catch(err => {
+        ).then(() => {
+        }).catch(err => {
           console.error("Error starting the QR code scanner", err);
         });
       }

@@ -27,7 +27,7 @@ export class TimbraturaService {
       email: "a.bianchi@f2.it",
       nome: "Alberto",
       cognome: "Bianchi",
-      ultima_timbratura: "entrata"
+      ultimaTimbratura: "entrata"
     }
 */
     //return this.http.post(this.apiUrl + 'savetimbroTestQrcode', userScan);
@@ -39,4 +39,5 @@ export class TimbraturaService {
   getScans(): Observable<Scan[]> {
     return this.http.get<Scan[]>(this.apiUrl + 'presenze');
   };
+
 }

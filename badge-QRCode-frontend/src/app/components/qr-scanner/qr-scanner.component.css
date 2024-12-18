@@ -67,11 +67,15 @@
 }
 
 .entrata {
-  background-color: var(--v_acqua); /* Verde per il pulsante Entrata */
+  background-color: var(--azzurro); /* il pulsante Entrata */
 }
 
 .uscita {
-  background-color: var(--ceruleo); /* Rosso per il pulsante Uscita */
+  background-color: var(--ceruleo); /* il pulsante Uscita */
+}
+
+.pausa {
+  background-color: var(--v_acqua); /* il pulsante pausa */
 }
 
 .timbratura-btn.selected {
@@ -82,9 +86,7 @@
 @media only screen and (max-width: 1280px) {
   :host {
     background-size: 1280px 540px; /* Imposta le dimensioni specifiche per l'immagine di sfondo */
-    width: 1280px; /* Imposta la larghezza del contenitore */
-    height: 540px; /* Imposta l'altezza del contenitore */
-  }
+      }
 
   .set-timbratura {
     padding: 20px;
