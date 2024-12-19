@@ -33,7 +33,6 @@
         *ngIf="user"
         id="user" 
     >
-        <h3>Dati scansionati:</h3>
         <p ><b>Ciao</b> {{ user.nome }} {{ user.cognome }}</p>
         <p>{{ scannedData?.ora }} {{ scannedData?.data }}</p>
         <p><b>{{ scannedData?.entrataUscita ?? '' | capitalize }}</b></p>

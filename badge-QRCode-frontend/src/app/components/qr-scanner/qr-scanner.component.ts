@@ -107,9 +107,17 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
         this.scannedData = { 
           qrcodeToken : decodedText,
         }; // Salva il dato decodificato
-        console.log(this.scannedData)
-
-        this.addUserIfNotExists(); // Controlla se l'utente esiste già nella lista degli scan
+        console.log('this.scannedData', this.scannedData)
+        
+        console.log('this.listScannedData', this.listScannedData)
+        //this.addUserIfNotExists(); // Controlla se l'utente esiste già nella lista degli scan
+        // Controlla se l'utente esiste già nella lista degli scan
+        const userExists = this.listScannedData.some(scan => scan.qrcodeToken === this.scannedData!.qrcodeToken);
+        if (userExists) {
+          console.log('addUserIfNotExists', userExists, 'non proseguo');
+          return; // L'utente esiste già, non proseguire
+        };
+        console.log('addUserIfNotExists', userExists, 'proseguo');
 
         // Disabilita la scansione
         this.isScanningEnabled = false;
@@ -149,6 +157,11 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
     this.timbraturaService.addScan(this.scannedData!).subscribe({
       next: (response) => {
         const body = JSON.parse(response.body);
+        if(body.length == 0) {
+          this.user = {};
+          this.message = 'QRCode non riconosciuto!';
+          return;
+        }
         this.user = body[0];
 
         if(this.user){
