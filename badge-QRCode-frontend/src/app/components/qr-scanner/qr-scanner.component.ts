@@ -103,9 +103,20 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
       this.errorDisplayed = false; // Resetta l'indicatore della visualizzazione dell'errore
 
       const qrCodeSuccessCallback = (decodedText: string, decodedResult: any) => { 
+        console.log('startScanning qrCodeSuccessCallback -> this.listScannedData', this.listScannedData)
+        //this.addUserIfNotExists(); // Controlla se l'utente esiste già nella lista degli scan
+        // Controlla se l'utente esiste già nella lista degli scan
+        const userExists = this.listScannedData.some(scan => scan.qrcodeToken === decodedText);
+        if (userExists) {
+          console.log('startScanning qrCodeSuccessCallback -> addUserIfNotExists', userExists, 'non proseguo');
+          this.message = 'Timbratura già registrata.';
+          return; // L'utente esiste già, non proseguire
+        };
+        console.log('startScanning qrCodeSuccessCallback -> addUserIfNotExists', userExists, 'proseguo');
+
         // Disabilita la scansione
         this.isScanningEnabled = false;
-
+        
         this.message = undefined;
 
         console.log('startScanning qrCodeSuccessCallback -> decodedText', decodedText)
@@ -118,17 +129,6 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
         }; // Salva il dato decodificato
         console.log('startScanning qrCodeSuccessCallback -> this.scannedData', this.scannedData)
         
-        console.log('startScanning qrCodeSuccessCallback -> this.listScannedData', this.listScannedData)
-        //this.addUserIfNotExists(); // Controlla se l'utente esiste già nella lista degli scan
-        // Controlla se l'utente esiste già nella lista degli scan
-        const userExists = this.listScannedData.some(scan => scan.qrcodeToken === this.scannedData!.qrcodeToken);
-        if (userExists) {
-          console.log('startScanning qrCodeSuccessCallback -> addUserIfNotExists', userExists, 'non proseguo');
-          this.message = 'Timbratura già registrata.';
-          return; // L'utente esiste già, non proseguire
-        };
-        console.log('startScanning qrCodeSuccessCallback -> addUserIfNotExists', userExists, 'proseguo');
-
         this.addScan();
 
         this.resetInactivityTimeout(); // Resetta il timeout di inattività
