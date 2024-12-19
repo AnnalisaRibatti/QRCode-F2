@@ -90,7 +90,6 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
       this.isScanningEnabled = true; // Riabilita la scansione
       this.startScanning(); // Avvia di nuovo la scansione
     }
-
     
     this.removeExpiredScans(); // Rimuove gli scans scaduti
   };
@@ -103,7 +102,10 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
       this.user = undefined;
       this.errorDisplayed = false; // Resetta l'indicatore della visualizzazione dell'errore
 
-      const qrCodeSuccessCallback = (decodedText: string, decodedResult: any) => {
+      const qrCodeSuccessCallback = (decodedText: string, decodedResult: any) => { 
+        // Disabilita la scansione
+        this.isScanningEnabled = false;
+
         this.message = undefined;
 
         console.log('startScanning qrCodeSuccessCallback -> decodedText', decodedText)
@@ -126,9 +128,6 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
           return; // L'utente esiste già, non proseguire
         };
         console.log('startScanning qrCodeSuccessCallback -> addUserIfNotExists', userExists, 'proseguo');
-
-        // Disabilita la scansione
-        this.isScanningEnabled = false;
 
         this.addScan();
 
