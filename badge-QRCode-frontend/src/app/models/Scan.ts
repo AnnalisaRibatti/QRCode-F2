@@ -3,4 +3,5 @@ export interface Scan {
   data?: string;
   ora?: string;
   entrataUscita?: string;
+  nome?: string; //eliminare
 }

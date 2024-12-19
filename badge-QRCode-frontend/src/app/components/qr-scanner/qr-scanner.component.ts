@@ -92,7 +92,7 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     
-    //this.removeExpiredScans(); // Rimuove gli scans scaduti
+    this.removeExpiredScans(); // Rimuove gli scans scaduti
   };
 
   startScanning(): void {
@@ -176,6 +176,7 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
 
         if(this.user){
           this.user.ultimaTimbratura = this.actionType as string;
+          this.scannedData!.nome = this.user.nome; // eliminare
 
           // Disabilitare la scansione per un certo tempo prima di riabilitarla
           setTimeout(() => {
