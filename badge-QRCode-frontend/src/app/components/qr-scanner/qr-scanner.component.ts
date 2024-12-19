@@ -102,7 +102,7 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
       this.errorDisplayed = false; // Resetta l'indicatore della visualizzazione dell'errore
 
       const qrCodeSuccessCallback = (decodedText: string, decodedResult: any) => {
-        if (!this.isScanningEnabled) return; // Controlla di nuovo se la scansione è abilitata
+        this.message = undefined;
         
         this.scannedData = { 
           qrcodeToken : decodedText,
@@ -132,6 +132,7 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
         if (!this.errorDisplayed) {
             console.warn(`QR Code scan error: ${errorMessage}`);
             this.errorDisplayed = true; // Imposta l'indicatore che l'errore è già stato visualizzato
+            this.message = `QR Code scan error: ${errorMessage}`;
         }
       };
 
@@ -147,6 +148,7 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
           // Applica dopo che il video è stato avviato
         }).catch(err => {
           console.error("Error starting the QR code scanner", err);
+          this.message = err;
         });
       }
 
@@ -165,7 +167,7 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
         this.user = body[0];
 
         if(this.user){
-          this.user.ultimaTimbratura = this.actionType as string,
+          this.user.ultimaTimbratura = this.actionType as string;
 
           // Disabilitare la scansione per un certo tempo prima di riabilitarla
           setTimeout(() => {
@@ -178,6 +180,7 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
       },
       error: (err) => {
         console.error("Error adding scan", err);
+        this.message = err;
       }
     });
   }
@@ -217,6 +220,7 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
         this.isScanning = false; // Imposta lo stato di scansione a falso dopo che è stata fermata
       }).catch(err => {
         console.error("Error stopping the QR code scanner", err);
+        this.message = err;
       });
     }
   };
@@ -245,10 +249,10 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
           
           this.scannedData!.entrataUscita = countTimbri % 2 === 0 ? 'uscita' : 'entrata';
 
-          console.log(this.scannedData)
+          console.log('processTimbratura -> this.scannedData', this.scannedData)
           this.listScannedData.push(this.scannedData!);
           //this.addUserIfNotExists(this.scannedData!)
-          console.log(this.listScannedData)
+          console.log('processTimbratura -> this.listScannedData', this.listScannedData)
         }
         
         if(this.user?.ultimaTimbratura != this.scannedData!.entrataUscita ) {
