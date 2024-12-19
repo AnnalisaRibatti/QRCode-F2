@@ -75,6 +75,7 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
     // Inizia il timeout di inattività
     this.startInactivityTimeout();
 
+    console.log('setTimbratura -> this.isScanning', this.isScanning)
     // Avvia la scansione solo se non è già in corso
     if (!this.isScanning) {
       this.startScanning(); // Avviare lo scanner se non è già in corso
@@ -91,10 +92,11 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     
-    this.removeExpiredScans(); // Rimuove gli scans scaduti
+    //this.removeExpiredScans(); // Rimuove gli scans scaduti
   };
 
   startScanning(): void {
+    console.log('startScanning -> resetto variabili')
     if (!this.isScanningEnabled) return; // Controlla se la scansione è abilitata
 
       this.isScanning = true; // Imposta lo stato di scansione a vero
@@ -103,21 +105,27 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
 
       const qrCodeSuccessCallback = (decodedText: string, decodedResult: any) => {
         this.message = undefined;
+
+        console.log('startScanning qrCodeSuccessCallback -> decodedText', decodedText)
+        console.log('startScanning qrCodeSuccessCallback -> !this.isScanningEnabled', !this.isScanningEnabled)
+        //if (!this.isScanningEnabled) return; // Controlla di nuovo se la scansione è abilitata
+        console.log('DOPO startScanning qrCodeSuccessCallback -> !this.isScanningEnabled  -> decodedText', decodedText)
         
         this.scannedData = { 
           qrcodeToken : decodedText,
         }; // Salva il dato decodificato
-        console.log('this.scannedData', this.scannedData)
+        console.log('startScanning qrCodeSuccessCallback -> this.scannedData', this.scannedData)
         
-        console.log('this.listScannedData', this.listScannedData)
+        console.log('startScanning qrCodeSuccessCallback -> this.listScannedData', this.listScannedData)
         //this.addUserIfNotExists(); // Controlla se l'utente esiste già nella lista degli scan
         // Controlla se l'utente esiste già nella lista degli scan
         const userExists = this.listScannedData.some(scan => scan.qrcodeToken === this.scannedData!.qrcodeToken);
         if (userExists) {
-          console.log('addUserIfNotExists', userExists, 'non proseguo');
+          console.log('startScanning qrCodeSuccessCallback -> addUserIfNotExists', userExists, 'non proseguo');
+          this.message = 'Timbratura già registrata.';
           return; // L'utente esiste già, non proseguire
         };
-        console.log('addUserIfNotExists', userExists, 'proseguo');
+        console.log('startScanning qrCodeSuccessCallback -> addUserIfNotExists', userExists, 'proseguo');
 
         // Disabilita la scansione
         this.isScanningEnabled = false;
@@ -152,7 +160,7 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
         });
       }
 
-      console.log('addUserIfNotExists')
+      console.log('startScanning qrCodeErrorCallback ->addUserIfNotExists')
   };
 
   private addScan(): void {
@@ -241,9 +249,8 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
 
           this.scannedData!.data = userStamping.data.S;
           let countTimbri = userStamping.countTimbri.N;
-
           
-          console.log('countTimbri', countTimbri, (countTimbri-1));
+          console.log('processTimbratura -> countTimbri', countTimbri, (countTimbri-1));
           
           this.scannedData!.ora = userStamping['ora'+countTimbri].S;
           
@@ -297,23 +304,28 @@ export class QrScannerComponent implements OnInit, OnDestroy, AfterViewInit {
     
     console.log('@@@@@ removeExpiredScans', this.listScannedData)
     this.listScannedData = this.listScannedData.filter(scan => 
-    {
-      // Combina le stringhe in un formato che JavaScript può interpretare
-      // Nota: il formato deve essere YYYY-MM-DDTHH:mm:ss per essere compatibile
-      const combinedString =  scan.data!.split('/').reverse().join('-') + 'T' +  scan.ora;
-
-      // Crea un oggetto Date
-      const date = new Date(combinedString);
-
-      // Ottieni il timestamp in millisecondi
-      const milliseconds = date.getTime();
-
-      console.log(currentTime);
-      console.log(milliseconds);
-      console.log(expirationTime);
-
-      return (currentTime - milliseconds) <= expirationTime; // Mantieni solo scans non scaduti
-    });
+      {
+        console.log('scan', scan)
+        // Combina le stringhe in un formato che JavaScript può interpretare
+        // Nota: il formato deve essere YYYY-MM-DDTHH:mm:ss per essere compatibile
+        const combinedString =  scan.data!.split('/').reverse().join('-') + 'T' +  scan.ora;
+        
+        // Crea un oggetto Date
+        const date = new Date(combinedString);
+        console.log('combinedString', combinedString);
+        console.log('date', date);
+        
+        // Ottieni il timestamp in millisecondi
+        const milliseconds = date.getTime();
+        
+        console.log('currentTime', currentTime);
+        console.log('milliseconds', milliseconds);
+        console.log('expirationTime', expirationTime);
+        console.log('(currentTime - milliseconds) <= expirationTime', (currentTime - milliseconds) <= expirationTime);
+        
+        return (currentTime - milliseconds) <= expirationTime; // Mantieni solo scans non scaduti
+      });
+      console.log('@@@@@ removeExpiredScans', this.listScannedData)
 
     console.log('Updated listScannedData:', this.listScannedData);
   }; 
